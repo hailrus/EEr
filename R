@@ -1,0 +1,113 @@
+local Fling = true --// Recommended: true
+local FlingBlockInvisible = true --// Recommended: false (So you can see the flinging block)
+local HighlightFlingBlock = true --// Recommended: true
+local FlingHighlightColor = Color3.fromRGB(55,55,255) --// First is R, Second is G, Third is B
+
+
+Bypass = "death"
+loadstring(game:GetObjects("rbxassetid://5325226148")[1].Source)()
+
+local IsDead = false
+local StateMover = true
+
+local playerss = workspace.non
+local bbv,bullet
+if Bypass == "death" then
+	bullet = game.Players.LocalPlayer.Character["HumanoidRootPart"]
+	bullet.Transparency = (FlingBlockInvisible ~= true and 0 or 1)
+	bullet.Massless = true
+	if bullet:FindFirstChildOfClass("Attachment") then
+		for _,v in pairs(bullet:GetChildren()) do
+			if v:IsA("Attachment") then
+				v:Destroy()
+			end
+		end
+	end
+
+	bbv = Instance.new("BodyPosition",bullet)
+    bbv.Position = playerss.Torso.CFrame.p
+end
+
+if Bypass == "death" then
+coroutine.wrap(function()
+	while true do
+		if not playerss or not playerss:FindFirstChildOfClass("Humanoid") or playerss:FindFirstChildOfClass("Humanoid").Health <= 0 then IsDead = true; return end
+		if StateMover then
+			bbv.Position = playerss.Torso.CFrame.p
+    		bullet.Position = playerss.Torso.CFrame.p
+		end
+		game:GetService("RunService").RenderStepped:wait()
+	end
+end)()
+end
+
+--[[local force = Instance.new("BodyForce",bullet)
+force.Force = Vector3.new(800,800,800)]]--
+
+if HighlightFlingBlock ~= false then
+    local Highlight = Instance.new("SelectionBox")
+    Highlight.Adornee = bullet
+    Highlight.Color3 = (typeof(FlingHighlightColor)=="Color3" and FlingHighlightColor) or (Color3.fromRGB(55,55,255))
+    Highlight.Parent = bullet
+    Highlight.Name = "HighlightBox"
+end
+
+bbav = Instance.new("BodyAngularVelocity",bullet)
+    bbav.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
+    bbav.P = 100000000000000000000000000000
+    bbav.AngularVelocity = Vector3.new(10000000000000000000000000000000,100000000000000000000000000,100000000000000000)
+
+local CDDF = {}
+local DamageFling = function(DmgPer)
+    if Fling ~= true then return end
+	if IsDead or Bypass ~= "death" or (DmgPer.Name == playerss.Name and DmgPer.Name == "non") or CDDF[DmgPer] or not DmgPer or not DmgPer:FindFirstChildOfClass("Humanoid") or DmgPer:FindFirstChildOfClass("Humanoid").Health <= 0 then return end
+	CDDF[DmgPer] = true; StateMover = false
+	local PosFling = (DmgPer:FindFirstChild("HumanoidRootPart") and DmgPer:FindFirstChild("HumanoidRootPart") .CFrame.p) or (DmgPer:FindFirstChildOfClass("Part") and DmgPer:FindFirstChildOfClass("Part").CFrame.p)
+    bullet.Rotation = playerss.Torso.Rotation
+    bbav = Instance.new("BodyAngularVelocity",bullet)
+    bbav.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
+    bbav.P = 100000000000000000000000000000
+    bbav.AngularVelocity = Vector3.new(10000000000000000000000000000000,100000000000000000000000000,100000000000000000)
+
+	for _=1,15 do
+		bbv.Position = PosFling
+		bullet.Position = PosFling
+		wait(0.03)
+	end
+	bbav:Destroy()
+	bbv.Position = playerss.Torso.CFrame.p
+    bullet.Position = playerss.Torso.CFrame.p
+	CDDF[DmgPer] = false; StateMover = true
+end
+
+wait(.2)
+
+
+local Aligns = 0
+function Align(Part0,Part1,Position,Rotation)
+    Aligns = Aligns + 1
+	local a0,a1 = Instance.new("Attachment",Part0), Instance.new("Attachment",Part1)
+	a1.Position = Position or Vector3.new()
+	a1.Rotation = Rotation or Vector3.new()
+	local ap = Instance.new("AlignPosition", Part0)
+	ap.Attachment0 = a0
+	ap.Attachment1 = a1
+	local ao = Instance.new("AlignOrientation", Part0)
+	ao.Name = "AO-"..Aligns
+	ap.Name = "AP-"..Aligns
+	ao.Attachment0 = a0
+	ao.Attachment1 = a1
+	ap.ApplyAtCenterOfMass = true;
+	ap.MaxForce = 67752;
+	ap.MaxVelocity = math.huge/9e110;
+	ap.ReactionForceEnabled = false;
+	ap.Responsiveness = 200;
+	ap.RigidityEnabled = false;
+	ao.MaxAngularVelocity = math.huge/9e110;
+	ao.MaxTorque = 67752;
+	ao.PrimaryAxisOnly = false;
+	ao.ReactionTorqueEnabled = false;
+	ao.Responsiveness = 200;
+	ao.RigidityEnabled = false;
+	return a1
+end
